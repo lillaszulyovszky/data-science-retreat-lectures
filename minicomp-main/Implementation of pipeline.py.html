@@ -1,0 +1,825 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# # Import libraries
+
+# In[1]:
+
+
+import pandas as pd
+import numpy as np
+from pandas_profiling import ProfileReport
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+from preprocessing import *
+
+
+# # Load data
+
+# Load data and take a look at what we have.
+
+# In[2]:
+
+
+store_data = pd.read_csv("./data/store.csv")
+sales_data = pd.read_csv("./data/train.csv")
+
+
+# In[ ]:
+
+
+
+
+
+# In[3]:
+
+
+mrg = Merger()
+mrg.merge(sales_data, store_data)
+merged_data = mrg.merged_data
+
+
+# In[4]:
+
+
+print(len(merged_data))
+merged_data.head()
+
+
+# In[ ]:
+
+
+
+
+
+# # Splitting train, validation, and test sets
+
+# When using tree-based models we can use random splitting of the data:
+
+# In[5]:
+
+
+X = merged_data.loc[:, ~merged_data.columns.isin(["Sales"])]
+y = merged_data.loc[:, "Sales"]
+
+X_train_valid, X_test, y_train_valid, y_test = train_test_split(
+    X, y,
+    random_state=42,
+    train_size=.8,
+)
+
+X_train, X_validation, y_train, y_validation = train_test_split(
+    X_train_valid,
+    y_train_valid,
+    random_state=42,
+    train_size=.8,
+)
+
+
+# In[6]:
+
+
+print(f"Our train set has {len(X_train)} samples")
+print(f"Our validation set has {len(X_validation)} samples")
+print(f"Our test set has {len(X_test)} samples")
+X_train.head()
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[7]:
+
+
+imp = Imputer()
+imp.define_imputers()
+imp.fit(X_train)
+X_train_transf = imp.transform_reconstruct(X_train)
+X_test_transf = imp.transform_reconstruct(X_test)
+X_validation_transf = imp.transform_reconstruct(X_validation)
+
+
+# In[8]:
+
+
+X_train_transf.head()
+
+
+# In[ ]:
+
+
+
+
+
+# In[9]:
+
+
+clnr = Cleaner()
+clnr.clean(X_train_transf)
+X_train_clean = clnr.data
+
+
+# In[10]:
+
+
+X_train_clean.columns
+
+
+# In[11]:
+
+
+X_train_clean
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# # Preprocessing of data
+
+# ## First cleaning
+
+# Samples without sales data as well as days that sales are zero can be dropped.
+
+# In[7]:
+
+
+sales_data.dropna(subset=["Sales"], inplace=True)
+
+keep_mask = sales_data.loc[:, "Sales"] != 0
+sales_data = sales_data[keep_mask]
+
+
+# We will also drop the customers feature. This feature is directly linked to our target, the sales. Moreover the number of customers in the future is not known, again similar to the sales themselves.
+
+# In[8]:
+
+
+sales_data.drop("Customers", axis=1, inplace=True)
+
+
+# After these steps there are still 30 duplicated samples in our dataset. Although these duplicates may actually be real numbers af two shops having the exact same sales on a single day, it is hard to disentangle. Moreover, 30 samples on a dataset of >500,000 is negligible.
+
+# In[9]:
+
+
+duped_mask = sales_data.duplicated()
+duplicated_data = sales_data.loc[duped_mask, :]
+
+print(len(duplicated_data))
+duplicated_data.head()
+
+
+# In[10]:
+
+
+sales_data.drop_duplicates(inplace=True)
+
+
+# ## Merging sales and store data
+
+# We need to merge the sales data with the store data. Checking data types reveals that the feature on which we will merge, "Store", is not of the same type. We change the datatype of "Store" in the sales data, such that it matches the store data. We do this step manually here, but this step will also be included in our pipeline.
+
+# In[11]:
+
+
+sales_data.dtypes
+
+
+# In[12]:
+
+
+store_data.dtypes
+
+
+# There's NaNs in the store ID. We will encode them with 0, because that label does not exist for a store in the store data.
+
+# In[13]:
+
+
+sales_data.isnull().sum()
+
+
+# In[14]:
+
+
+store_data.loc[:, "Store"].min()
+
+
+# In[15]:
+
+
+sales_data = sales_data.fillna({"Store": 0})
+
+
+# In[16]:
+
+
+sales_data = sales_data.astype({"Store": int})
+
+
+# Actual merging of tables.
+
+# In[17]:
+
+
+merged_data = sales_data.merge(store_data, how="left", on="Store")
+
+
+# In[18]:
+
+
+print(f"The total number of samples in our dataset is {len(merged_data)}")
+merged_data.head()
+
+
+# # Splitting train, validation, and test sets
+
+# When using tree-based models we can use random splitting of the data:
+
+# In[19]:
+
+
+X = merged_data.loc[:, ~merged_data.columns.isin(["Sales"])]
+y = merged_data.loc[:, "Sales"]
+
+X_train_valid, X_test, y_train_valid, y_test = train_test_split(
+    X, y,
+    random_state=42,
+    train_size=.8,
+)
+
+X_train, X_validation, y_train, y_validation = train_test_split(
+    X_train_valid,
+    y_train_valid,
+    random_state=42,
+    train_size=.8,
+)
+
+
+# In[20]:
+
+
+print(f"Our train set has {len(X_train)} samples")
+print(f"Our validation set has {len(X_validation)} samples")
+print(f"Our test set has {len(X_test)} samples")
+X_train.head()
+
+
+# **When using trend+seasonality based models we need to split the data using a date-cutoff. This may be implemented later.**
+
+# # Data profiling
+
+# The cell below is commented out for faster running of this notebook. The resulting profile report can be found by following this link:
+# 
+# **[Rossmann profile report](files/rossmann_profile_report.html)**
+
+# In[21]:
+
+
+# profile = ProfileReport(X_train)
+# profile.to_file(output_file="rossmann_profile_report.html")
+
+
+# # Feature engineering
+
+# ### Check amount of features missing per sample. If 4 or more, meaning about 50%, try dropping entire row.
+# 
+# ### We also need to look into outliers!
+# 
+# **Lilla**
+# 
+#     Date -> datetime
+#     split in year, month, week, day of week; drop the original
+#     make sure weekday matches weekday from date; check for missing values and impute where necessary
+#     encode all except year with sine+cosine! https://ianlondon.github.io/blog/encoding-cyclical-features-24hour-time/
+# 
+#     DayOfWeek
+#     drop, replace with values derived from Date
+# 
+#     CompetitionDistance -> float
+#     Try: median imputation
+#     Try also: KNNImputer (sklearn)
+# 
+# **Corstiaen**
+# 
+#     Store
+#     3 options:
+#     * drop
+#     * target encoding -> float
+#     * frequency encoding -> int
+#     test model to seae what works best
+#    **MAKE SURE STORE FEATURE IS SAME dTYPE;
+#    NEEDS 0 IMPUTING FOR THAT**
+# 
+#     Open -> one-hot encode
+#     3 categories, meaning 2 one-hot columns
+#     Started with median imputing (1 for True)
+#     
+#     Promo -> one-hot encode
+#     3 categories, meaning 2 one-hot columns
+#     Started with median imputing (0 for False)
+#     
+#     StateHoliday -> one-hot encode
+#     5 categories, meaning 4 one-hot columns
+#     turn 0.0 into 0
+#     ['0', 0.0, 'c', nan, 'a', 'b']
+#     Started with median imputing (0 for No Holiday)
+#     
+#     SchoolHoliday -> one-hot encode
+#     3 categories, meaning 2 one-hot columns
+#     Started with median imputing (0 for No Holiday)
+#     
+#     StoreType -> label encode
+#     Try label encoding first
+#     Potentially try 5 categories, meaning 4 one-hot columns
+#     Started with mode imputing
+#     
+#     Assortment -> label encode
+#     Try label encoding first
+#     Potentially try 4 categories, meaning 3 one-hot columns
+#     Started with mode imputing
+#     
+#     
+# **SAM**
+# 
+#     CompetitionOpenSinceMonth -> new int or float
+#     CompetitionOpenSinceYear -> new int or float
+#     Merge and create new feature, giving temporal distance from 2015-07-31 or 2015-08-31
+#     potentially use datetime for these calculations?
+#     Try: median imputation
+#     Try also: KNNImputer (sklearn)
+#     
+#     Promo2 -> one-hot encode
+#     3 categories including NaN, 2 columns
+#     make sure all missing in other Promo2 features are described by these three categories!
+#     
+#     Promo2SinceWeek -> new int or float
+#     Promo2SinceYear -> new int or float
+#     Merge and create new feature, giving temporal distance from 2015-07-31 or 2015-08-31
+#     potentially use datetime for these calculations?
+#     imputation with any value, this is caught by the boolean from Promo2 feature
+#     
+#     PromoInterval -> one-hot encode
+#     3 categories, NaNs can be added to the mode category, these will again be described by the Promo2 feature
+#     
+
+# ### Imputing
+
+# **ATTENTION: After dropping all days with Sales=0, we only have days left where the store was opened, or where it was not known! Therefore changing NaNs for that feature to 0. We may completely delete the column later.**
+
+# In[5]:
+
+
+class Merger():
+    """Merges sales table with store table AFTER dropping unused sampels and features
+    """
+    
+    def __init__(self):
+        nondropped_data = None
+        merged_data = None
+        sales_data = None
+        store_data = None
+    
+    
+    def merge(self, sales_data, store_data):
+        self.sales_data = sales_data
+        self.store_data = store_data
+        self._drop_data()
+        self._merge_sales_stores()
+        return self.merged_data
+    
+    
+    def _drop_data(self):
+        sales_data = self.sales_data
+        
+        # drop NaN in sales
+        sales_data.dropna(subset=["Sales"], inplace=True)
+        
+        # remove rows where sales=0
+        keep_mask = sales_data.loc[:, "Sales"] != 0
+        sales_data = sales_data[keep_mask]
+        
+        # drop the cutomers feature
+        sales_data.drop("Customers", axis=1, inplace=True)
+        
+        # store data
+        self.nondropped_data = sales_data
+    
+    
+    def _merge_sales_stores(self):
+        
+        nondropped_data = self.nondropped_data
+        store_data = self.store_data
+        
+        # fill NaNs
+        nondropped_data = nondropped_data.fillna({"Store": 0})
+        
+        # make dtype the same on merging key
+        nondropped_data = nondropped_data.astype({"Store": int})
+        
+        # merging and storing
+        self.merged_data = nondropped_data.merge(store_data, how="left", on="Store")
+        
+
+
+# In[6]:
+
+
+mrg = Merger()
+mydata = mrg.merge(sales_data, store_data)
+mydata
+
+
+# In[26]:
+
+
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+
+class Imputer():
+    
+    def __init__(self):
+        self.zero_imputed = ["Open", "Promo", "SchoolHoliday"]
+        self.mode_imputed = ["StateHoliday", "StoreType", "Assortment"]
+        self.median_imputed = ["CompetitionDistance"]
+        self.columns_ordered = self.zero_imputed + self.mode_imputed + self.median_imputed
+        self.transformers = None
+
+
+    def define_imputers(self):
+        
+        zero_imputer = SimpleImputer(missing_values=np.nan, strategy="constant", fill_value=0)
+        mode_imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
+        median_imputer = SimpleImputer(missing_values=np.nan, strategy="median")
+        
+        self.transformers = ColumnTransformer(
+            transformers=[
+                ("zero_imputer", zero_imputer, self.zero_imputed),
+                ("mode_imputer", mode_imputer, self.mode_imputed),
+                ("median_imputer", median_imputer, self.median_imputed),
+            ]
+        )
+
+    
+    def fit(self, X):
+        self.transformers.fit(X)
+
+        
+    def transform(self, X):
+        transformed = self.transformers.transform(X)
+        return transformed
+
+
+    def fit_transform(self, X):
+        transformed = self.transformers.fit_transform(X)
+        return transformed
+    
+    
+    def transform_reconstruct(self, X):
+        X_out = X.copy()
+        X_out.loc[:, self.columns_ordered] = self.transform(X)
+        return X_out
+
+
+# In[29]:
+
+
+imp = Imputer()
+imp.define_imputers()
+imp.fit(X_train)
+X_train_imputed = imp.transform_reconstruct(X_train)
+
+
+# In[30]:
+
+
+X_train_imputed
+
+
+# In[31]:
+
+
+X_train_imputed.dtypes
+
+
+# In[36]:
+
+
+class Cleaner():
+    """Clean data and set data types
+    """
+    
+    def __init__(self):
+        self.data = None
+    
+    
+    def clean(self, data):
+        self.data = data
+        self._correct_stateholiday()
+        self._set_dtypes()
+        return self.data
+    
+    
+    def _correct_stateholiday(self):
+
+        def zerofun(row):
+            if row["StateHoliday"] == "0.0":
+                out = "0"
+            else:
+                out = row["StateHoliday"]
+            return out
+
+        self.data = self.data.astype({"StateHoliday": str})
+        self.data.loc[:, "StateHoliday"] = self.data.apply(func=zerofun, axis=1)
+
+        
+    def _set_dtypes(self):
+        self.data = self.data.astype({
+            "StateHoliday": "category",
+            "StoreType": "category",
+            "Assortment": "category"
+        })
+
+
+# In[37]:
+
+
+cln = Cleaner()
+X_cleaned = cln.clean(X_train_imputed)
+X_cleaned.dtypes
+
+
+# In[38]:
+
+
+X_cleaned
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[40]:
+
+
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+
+zero_columns = ["Open", "Promo", "SchoolHoliday"]
+zero_imputer = SimpleImputer(missing_values=np.nan, strategy="constant", fill_value=0)
+
+mode_columns = ["StateHoliday", "StoreType", "Assortment"]
+mode_imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
+
+median_columns = ["CompetitionDistance"]
+median_imputer = SimpleImputer(missing_values=np.nan, strategy="median")
+
+all_columns_ordered =  zero_columns + mode_columns + median_columns
+
+ct = ColumnTransformer(
+    transformers=[
+        ("zero_imputer", zero_imputer, zero_columns),
+        ("mode_imputer", mode_imputer, mode_columns),
+        ("median_imputer", median_imputer, median_columns),
+    ],
+    verbose_feature_names_out=False,
+)
+
+transformed = ct.fit_transform(X_train)
+
+
+# Write imputed data to dataframe.
+
+# In[22]:
+
+
+X_train_imputed = X_train.copy()
+X_train_imputed.loc[:, all_columns_ordered] = transformed
+
+
+# Change 0.0 floats to "0" in StateHoliday.
+
+# In[23]:
+
+
+def zerofun(row):
+    if row["StateHoliday"] == "0.0":
+        out = "0"
+    else:
+        out = row["StateHoliday"]
+    return out
+
+X_train_imputed = X_train_imputed.astype({"StateHoliday": str})
+
+X_train_imputed.loc[:, "StateHoliday"] = X_train_imputed.apply(func=zerofun, axis=1)
+
+
+# In[24]:
+
+
+X_train_imputed.head()
+
+
+# ### Encoding
+
+# Before encoding (or before imputing?) we should check our data types and change them where necessary.
+
+# In[25]:
+
+
+X_train_imputed.dtypes
+
+
+# In[26]:
+
+
+X_train_imputed = X_train_imputed.astype({
+    "StateHoliday": "category",
+    "StoreType": "category",
+    "Assortment": "category"
+})
+
+
+# Custom encoder. Still does not work with the sklearn.pipeline.Pipeline. Maybe we should turn the whole pipeline into a custom class?
+
+# In[27]:
+
+
+class StoreTargetMeanEncoder():
+    """Target mean encoder for Store feature in the Rossmann dataset.
+    """
+    
+    def __init__(self):
+        self.store_target_mean = None
+    
+    def fit(self, X, y):
+        self._get_store_target_mean(feature=X, target=y)
+
+    def transform(self, X):
+        X = self._store_target_mean_encoder(X)
+        return X
+    
+    def _get_store_target_mean(self, feature, target):
+        all_data = pd.concat([X_train, y_train], axis=1)
+        self.store_target_mean = all_data.groupby(by="Store").mean().loc[:, "Sales"].to_dict()
+    
+    def _store_target_mean_encoder(self, X):
+        updated_store = X.loc[:, "Store"].map(self.store_target_mean)
+        X_out = X.copy()
+        X_out.update(updated_store)
+        return X_out
+
+
+# Fitting and encoding using custom encoder.
+
+# In[34]:
+
+
+# stme = StoreTargetMeanEncoder()
+# stme.fit(X_train_imputed, y_train)
+# stme.transform(X_train_imputed)
+
+
+# Encoding using the sklearn pipeline.
+
+# In[35]:
+
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OrdinalEncoder
+
+pipe = Pipeline([
+    ('store_target_mean_encoder', StoreTargetMeanEncoder()),
+    ('ordinal_encoder', OrdinalEncoder()),
+])
+
+my_features = ["Open", "Promo", "StateHoliday", "SchoolHoliday", "StoreType", "Assortment"]
+pipe.fit(X_train_imputed.loc[:, my_features], y_train)
+
+
+# Testing of encoder using specific features. We can use this encoder for a custom class in a custom pipeline, outside of a sklearn Pipeline instance.
+
+# In[30]:
+
+
+oc = OrdinalEncoder()
+oc.fit(X_train_imputed.loc[:, my_features], y_train)
+
+
+# In[31]:
+
+
+oc.transform(X_train_imputed.loc[:, my_features]).max(axis=0)
+
+
+# In[32]:
+
+
+X_train_imputed.loc[:, my_features].nunique()
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
