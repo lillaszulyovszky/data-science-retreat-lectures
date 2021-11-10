@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  mm404manager:
+    container_name: MM404-Manager
+    image: docker.minutesmade.com/mm404-manager-dev
+    build:
+      context: ./
+    ports:
+      - "5001:80"
+    networks:
+      - 404_net
+    volumes:
+      - 404-static-volume:/www/static
+
+volumes:
+  404-static-volume:
+
+networks:
+  404_net:
+    driver: bridge
