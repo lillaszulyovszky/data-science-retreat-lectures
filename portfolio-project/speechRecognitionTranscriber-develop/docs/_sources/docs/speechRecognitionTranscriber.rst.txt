@@ -1,0 +1,7 @@
+speechRecognitionTranscriber module
+===================================
+
+.. automodule:: speechRecognitionTranscriber
+   :members:
+   :undoc-members:
+   :show-inheritance:

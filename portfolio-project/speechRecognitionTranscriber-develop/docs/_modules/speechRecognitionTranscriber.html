@@ -1,0 +1,667 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>speechRecognitionTranscriber &mdash; Speech Recognition Transcriber v1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Speech Recognition Transcriber
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../docs/speechRecognitionTranscriber.html">speechRecognitionTranscriber module</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Speech Recognition Transcriber</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>speechRecognitionTranscriber</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for speechRecognitionTranscriber</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd"> * ************************************************************</span>
+<span class="sd"> *      Program: Speech Recognition Transcriber</span>
+<span class="sd"> *      Type: Python</span>
+<span class="sd"> *      Author: David Velasco Garcia @davidvelascogarcia</span>
+<span class="sd"> * ************************************************************</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># Libraries</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">fpdf</span> <span class="kn">import</span> <span class="n">FPDF</span>
+<span class="kn">from</span> <span class="nn">halo</span> <span class="kn">import</span> <span class="n">Halo</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">from</span> <span class="nn">pydub</span> <span class="kn">import</span> <span class="n">AudioSegment</span>
+<span class="kn">from</span> <span class="nn">pydub.silence</span> <span class="kn">import</span> <span class="n">split_on_silence</span>
+<span class="kn">from</span> <span class="nn">pydub.utils</span> <span class="kn">import</span> <span class="n">make_chunks</span>
+<span class="kn">import</span> <span class="nn">speech_recognition</span> <span class="k">as</span> <span class="nn">sr</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="SpeechRecognitionTranscriber"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber">[docs]</a><span class="k">class</span> <span class="nc">SpeechRecognitionTranscriber</span><span class="p">:</span>
+
+    <span class="c1"># Function: Constructor</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Build Halo spinner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span> <span class="o">=</span> <span class="n">Halo</span><span class="p">(</span><span class="n">spinner</span><span class="o">=</span><span class="s1">&#39;dots&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Function: getSystemPlatform</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.getSystemPlatform"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.getSystemPlatform">[docs]</a>    <span class="k">def</span> <span class="nf">getSystemPlatform</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Get system configuration</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Detecting system and release version ...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">systemPlatform</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+        <span class="n">systemRelease</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Configuration detected:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Platform:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">systemPlatform</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Release:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">systemRelease</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">systemPlatform</span><span class="p">,</span> <span class="n">systemRelease</span></div>
+
+    <span class="c1"># Function: getAuthenticationData</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.getAuthenticationData"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.getAuthenticationData">[docs]</a>    <span class="k">def</span> <span class="nf">getAuthenticationData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">**************************************************************************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Authentication:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">loopControlFileExists</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="nb">int</span><span class="p">(</span><span class="n">loopControlFileExists</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Get authentication data</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Getting authentication data ...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">authenticationData</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+                <span class="n">authenticationData</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;../config/languages.ini&#39;</span><span class="p">)</span>
+                <span class="n">authenticationData</span><span class="o">.</span><span class="n">sections</span><span class="p">()</span>
+
+                <span class="n">inputLanguage</span> <span class="o">=</span> <span class="n">authenticationData</span><span class="p">[</span><span class="s1">&#39;Languages&#39;</span><span class="p">][</span><span class="s1">&#39;input-language&#39;</span><span class="p">]</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input language: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">inputLanguage</span><span class="p">))</span>
+
+                <span class="c1"># Exit loop</span>
+                <span class="n">loopControlFileExists</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Sorry, languages.ini not founded, waiting 4 seconds to the next check ...</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[INFO] Data obtained correctly.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">succeed</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inputLanguage</span></div>
+
+    <span class="c1"># Function: getTargetFile</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.getTargetFile"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.getTargetFile">[docs]</a>    <span class="k">def</span> <span class="nf">getTargetFile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">**************************************************************************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter target file:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">loopControlFileExists</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="nb">int</span><span class="p">(</span><span class="n">loopControlFileExists</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Enter target file with absolute or relative path:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Get target file</span>
+                <span class="n">targetFile</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+                <span class="c1"># Target path</span>
+                <span class="n">targetPath</span> <span class="o">=</span> <span class="n">targetFile</span>
+
+                <span class="c1"># Read target file and set one channel to check files it´s ok</span>
+                <span class="n">targetFile</span> <span class="o">=</span> <span class="n">AudioSegment</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">targetFile</span><span class="p">)</span>
+                <span class="n">targetFile</span> <span class="o">=</span> <span class="n">targetFile</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Exit loop</span>
+                <span class="n">loopControlFileExists</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Sorry, target file not founded, waiting 4 seconds to the next check ...</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[INFO] Target file obtained correctly.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">succeed</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">targetFile</span><span class="p">,</span> <span class="n">targetPath</span></div>
+
+    <span class="c1"># Function: getTargetName</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.getTargetName"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.getTargetName">[docs]</a>    <span class="k">def</span> <span class="nf">getTargetName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetPath</span><span class="p">):</span>
+
+        <span class="c1"># Extract target name</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">targetPath</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.mkv&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.avi&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.ogg&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.aif&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.wma&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.amr&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.midi&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.mpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.flv&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.mpeg4&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">targetName</span> <span class="o">=</span> <span class="n">targetName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.mpg&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">targetName</span></div>
+
+    <span class="c1"># Function: wavConversion</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.wavConversion"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.wavConversion">[docs]</a>    <span class="k">def</span> <span class="nf">wavConversion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetFile</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;[INFO] Converting target file to audio file .wav ...&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="c1"># Convert to wav</span>
+        <span class="n">targetFile</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;audioFile.wav&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;wav&quot;</span><span class="p">)</span>
+        <span class="n">targetFile</span> <span class="o">=</span> <span class="s2">&quot;audioFile.wav&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+        <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[INFO] Target file converted to audio file .wav.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">succeed</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">targetFile</span></div>
+
+    <span class="c1"># Function: readAudioFile</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.readAudioFile"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.readAudioFile">[docs]</a>    <span class="k">def</span> <span class="nf">readAudioFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetFile</span><span class="p">):</span>
+
+        <span class="c1"># Convert to wav</span>
+        <span class="n">dataToSolve</span> <span class="o">=</span> <span class="n">AudioSegment</span><span class="o">.</span><span class="n">from_wav</span><span class="p">(</span><span class="n">targetFile</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dataToSolve</span></div>
+
+    <span class="c1"># Function: selectSplitMode</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.selectSplitMode"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.selectSplitMode">[docs]</a>    <span class="k">def</span> <span class="nf">selectSplitMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">**************************************************************************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Select split mode:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">loopControlFileExists</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="nb">int</span><span class="p">(</span><span class="n">loopControlFileExists</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Do you want to make split by time or by silence method?</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. By silence&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. By time&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Enter your split selection:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">splitMode</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">splitMode</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">splitMode</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="c1"># Exit loop</span>
+                    <span class="n">loopControlFileExists</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Sorry, option not supported, enter supported option.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">splitMode</span></div>
+
+    <span class="c1"># Function: splitTarget</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.splitTarget"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.splitTarget">[docs]</a>    <span class="k">def</span> <span class="nf">splitTarget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataToSolve</span><span class="p">,</span> <span class="n">splitMode</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">splitMode</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fragments</span> <span class="o">=</span> <span class="n">split_on_silence</span><span class="p">(</span><span class="n">dataToSolve</span><span class="p">,</span> <span class="n">min_silence_len</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">silence_thresh</span><span class="o">=-</span><span class="mi">45</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slpitTime</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">55</span>
+            <span class="n">fragments</span> <span class="o">=</span> <span class="n">make_chunks</span><span class="p">(</span><span class="n">dataToSolve</span><span class="p">,</span> <span class="n">slpitTime</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fragments</span></div>
+
+    <span class="c1"># Function: buildTempDir</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.buildTempDir"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.buildTempDir">[docs]</a>    <span class="k">def</span> <span class="nf">buildTempDir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Build temp dir and move to it</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># Show error temp dir</span>
+            <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Error in temp dir.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span></div>
+
+    <span class="c1"># Function: removeTempData</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.removeTempData"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.removeTempData">[docs]</a>    <span class="k">def</span> <span class="nf">removeTempData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;audioFile.wav&quot;</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># Show error temp dir</span>
+            <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Error removing temp data.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span></div>
+
+    <span class="c1"># Function: buildEngine</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.buildEngine"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.buildEngine">[docs]</a>    <span class="k">def</span> <span class="nf">buildEngine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Building engine ...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build engine</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">Recognizer</span><span class="p">()</span>
+
+        <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[INFO] Engine built correctly.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">succeed</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">engine</span></div>
+
+    <span class="c1"># Function: processRequest</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.processRequests"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.processRequests">[docs]</a>    <span class="k">def</span> <span class="nf">processRequests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">inputLanguage</span><span class="p">,</span> <span class="n">fragments</span><span class="p">,</span> <span class="n">targetName</span><span class="p">):</span>
+
+        <span class="c1"># Create output file</span>
+        <span class="n">transcribedFileName</span> <span class="o">=</span> <span class="n">targetName</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span>
+        <span class="n">transcribedFile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transcribedFileName</span><span class="p">),</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Count number of fragments</span>
+        <span class="n">fragmentNum</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">fragments</span><span class="p">:</span>
+
+            <span class="c1"># Build and initial and end silence to improve speech recognition</span>
+            <span class="n">fragmentSilent</span> <span class="o">=</span> <span class="n">AudioSegment</span><span class="o">.</span><span class="n">silent</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+            <span class="c1"># Prepare full fragment</span>
+            <span class="n">audioFragment</span> <span class="o">=</span> <span class="n">fragmentSilent</span> <span class="o">+</span> <span class="n">fragment</span> <span class="o">+</span> <span class="n">fragmentSilent</span>
+
+            <span class="c1"># Save in temp dir as .wav</span>
+            <span class="n">audioFragment</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;./audioFragment</span><span class="si">{0}</span><span class="s2">.wav&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fragmentNum</span><span class="p">),</span> <span class="n">bitrate</span><span class="o">=</span><span class="s1">&#39;192k&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;wav&quot;</span><span class="p">)</span>
+            <span class="n">audioFragmentFile</span> <span class="o">=</span> <span class="s1">&#39;audioFragment&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragmentNum</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span>
+
+            <span class="k">with</span> <span class="n">sr</span><span class="o">.</span><span class="n">AudioFile</span><span class="p">(</span><span class="n">audioFragmentFile</span><span class="p">)</span> <span class="k">as</span> <span class="n">dataToSolve</span><span class="p">:</span>
+
+                <span class="c1"># Adjust ambient noise</span>
+                <span class="n">engine</span><span class="o">.</span><span class="n">adjust_for_ambient_noise</span><span class="p">(</span><span class="n">dataToSolve</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+                <span class="n">dataToSolve</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">dataToSolve</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">55</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Show recognizing</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;[INFO] Recognizing ...&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+                <span class="n">dataSolved</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">recognize_google</span><span class="p">(</span><span class="n">dataToSolve</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">inputLanguage</span><span class="p">))</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+                <span class="c1"># Show dataSolved</span>
+                <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[INFO] Results: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataSolved</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;...</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">succeed</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+                <span class="c1"># Append transcribed text</span>
+                <span class="n">transcribedFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dataSolved</span> <span class="o">+</span> <span class="s2">&quot;.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">sr</span><span class="o">.</span><span class="n">RequestError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1"># Show request error</span>
+                <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Error, request Google Speech API fail.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">sr</span><span class="o">.</span><span class="n">UnknownValueError</span><span class="p">:</span>
+                <span class="c1"># Show request error</span>
+                <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Error, unknown error.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+            <span class="c1"># Increase fragmentNum</span>
+            <span class="n">fragmentNum</span> <span class="o">=</span> <span class="n">fragmentNum</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># Wait 3 secs to next request</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># Close transcribedFile</span>
+        <span class="n">transcribedFile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Go to root path</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">transcribedFileName</span></div>
+
+    <span class="c1"># Function: pdfExportation</span>
+<div class="viewcode-block" id="SpeechRecognitionTranscriber.pdfExportation"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.SpeechRecognitionTranscriber.pdfExportation">[docs]</a>    <span class="k">def</span> <span class="nf">pdfExportation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetName</span><span class="p">,</span> <span class="n">transcribedFileName</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="c1"># Show recognizing</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;[INFO] Exporting to PDF ...&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="c1"># Build PDF file</span>
+            <span class="n">pdfFile</span> <span class="o">=</span> <span class="n">FPDF</span><span class="p">(</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="s1">&#39;A4&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Add page</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+
+            <span class="c1"># Set font and size</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s1">&#39;Times&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+            <span class="c1"># Set margins</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">set_margins</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+            <span class="c1"># Get title</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">targetName</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+            <span class="c1"># Clean title</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+            <span class="c1"># Set title</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s1">&#39;Times&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Add new page</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">add_page</span><span class="p">()</span>
+
+            <span class="c1"># Re-set font and size</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">set_font</span><span class="p">(</span><span class="s1">&#39;Times&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+            <span class="c1"># Adjust transcribedFileName path</span>
+            <span class="n">transcribedFileName</span> <span class="o">=</span> <span class="s2">&quot;./temp/&quot;</span> <span class="o">+</span> <span class="n">transcribedFileName</span>
+
+            <span class="c1"># Open transcribedFile</span>
+            <span class="n">transcribedFile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transcribedFileName</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+            <span class="c1"># For each line write into PDF file</span>
+            <span class="k">for</span> <span class="n">fileLine</span> <span class="ow">in</span> <span class="n">transcribedFile</span><span class="p">:</span>
+                <span class="n">pdfFile</span><span class="o">.</span><span class="n">multi_cell</span><span class="p">(</span><span class="mi">157</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fileLine</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;J&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Close transcribedFile</span>
+            <span class="n">transcribedFile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="c1"># Prepare output PDF name and export</span>
+            <span class="n">pdfName</span> <span class="o">=</span> <span class="n">targetName</span> <span class="o">+</span> <span class="s2">&quot;.pdf&quot;</span>
+            <span class="n">pdfFile</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pdfName</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="c1"># Show PDF exportation finished</span>
+            <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[INFO] PDF exportation done correctly.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">succeed</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># Show error exporting to PDF</span>
+            <span class="n">systemResponseMessage</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[ERROR] Error exporting to PDF file.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">systemResponse</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">systemResponseMessage</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Function: main</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../docs/speechRecognitionTranscriber.html#speechRecognitionTranscriber.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;               Program: Speech Recognition Transcriber                    &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                     Author: David Velasco Garcia                         &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                             @davidvelascogarcia                          &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Loading Speech Recognition Transcriber engine ...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Build speechRecognitionTranscriber object</span>
+    <span class="n">speechRecognitionTranscriber</span> <span class="o">=</span> <span class="n">SpeechRecognitionTranscriber</span><span class="p">()</span>
+
+    <span class="c1"># Get system platform</span>
+    <span class="n">systemPlatform</span><span class="p">,</span> <span class="n">systemRelease</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">getSystemPlatform</span><span class="p">()</span>
+
+    <span class="c1"># Get input language</span>
+    <span class="n">inputLanguage</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">getAuthenticationData</span><span class="p">()</span>
+
+    <span class="c1"># Get target file</span>
+    <span class="n">targetFile</span><span class="p">,</span> <span class="n">targetPath</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">getTargetFile</span><span class="p">()</span>
+
+    <span class="c1"># Get target name</span>
+    <span class="n">targetName</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">getTargetName</span><span class="p">(</span><span class="n">targetPath</span><span class="p">)</span>
+
+    <span class="c1"># Convert to audio file</span>
+    <span class="n">targetFile</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">wavConversion</span><span class="p">(</span><span class="n">targetFile</span><span class="p">)</span>
+
+    <span class="c1"># Read audio file</span>
+    <span class="n">dataToSolve</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">readAudioFile</span><span class="p">(</span><span class="n">targetFile</span><span class="p">)</span>
+
+    <span class="c1"># Select spit mode</span>
+    <span class="n">splitMode</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">selectSplitMode</span><span class="p">()</span>
+
+    <span class="c1"># Split target audio file in multiple chunks</span>
+    <span class="n">fragments</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">splitTarget</span><span class="p">(</span><span class="n">dataToSolve</span><span class="p">,</span> <span class="n">splitMode</span><span class="p">)</span>
+
+    <span class="c1"># Build temp dir</span>
+    <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">buildTempDir</span><span class="p">()</span>
+
+    <span class="c1"># Build engine</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">buildEngine</span><span class="p">()</span>
+
+    <span class="c1"># Process input requests</span>
+    <span class="n">transcribedFileName</span> <span class="o">=</span> <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">processRequests</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">inputLanguage</span><span class="p">,</span> <span class="n">fragments</span><span class="p">,</span> <span class="n">targetName</span><span class="p">)</span>
+
+    <span class="c1"># Export to PDF</span>
+    <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">pdfExportation</span><span class="p">(</span><span class="n">targetName</span><span class="p">,</span> <span class="n">transcribedFileName</span><span class="p">)</span>
+
+    <span class="c1"># Remove temp data</span>
+    <span class="n">speechRecognitionTranscriber</span><span class="o">.</span><span class="n">removeTempData</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Program finished&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;**************************************************************************&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">speechRecognitionTranscriber program finished correctly.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Call main function</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, David Velasco Garcia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+# Continuous integration: Travis CI
+
+language: python 3.6
+
+os: linux
+dist: xenial
+sudo: enabled
+
+compiler:
+   - clang
+
+before_install:
+  - sudo apt-get -qq update
+
+# Configure git
+  - if [ ! `git config --get user.email` ]; then `git config --global user.email 'user@example.com'`; fi
+  - if [ ! `git config --get user.name` ]; then `git config --global user.name 'Travis CI'`; fi
+
+ # Upgrade pip
+  - python -m pip install --upgrade pip
+  
+install:
+# Install some dependencies
+  - sudo apt-get install portaudio19-dev
+  - sudo apt-get install ffmpeg
+  
+# Install YARP
+  - sudo sh -c 'echo "deb http://www.icub.org/ubuntu xenial contrib/science" > /etc/apt/sources.list.d/icub.list'
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 57A5ACB6110576A6
+  - sudo apt-get update
+  - sudo apt-get install yarp
+
+# Install dependencies
+  - pip install -r requirements.txt
+
+before_script:
+  - cd programs
+
+script:
+  - cd ..
+
+
+after_success:
+
+notifications:
+email: true
