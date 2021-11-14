@@ -6,8 +6,8 @@ RUN mkdir -p /usr/mm/mm404
 WORKDIR /usr/mm/mm404
 
 # Install runtime dependencies
-RUN apt-get update -y && apt-get install -y gunicorn
-RUN pip install gunicorn[eventlet] flask python-socketio flask_socketio redis numpy scipy requests
+RUN apt-get update -y
+RUN pip install gunicorn==20.1.0 eventlet==0.30.2 flask python-socketio flask_socketio redis numpy scipy requests
 
 # Expose the working port
 EXPOSE 5000
