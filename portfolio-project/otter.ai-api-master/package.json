@@ -1,0 +1,45 @@
+{
+  "name": "otter.ai-api",
+  "version": "1.0.2",
+  "description": "Unofficial API for Otter.ai",
+  "main": "dist/index.js",
+  "scripts": {
+    "prepublish": "babel src --out-dir dist",
+    "watch": "babel src --watch --out-dir dist --verbose",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omerdn1/otter-api.git"
+  },
+  "author": "Omer Dangoor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/omerdn1/otter-api/issues"
+  },
+  "homepage": "https://github.com/omerdn1/otter-api#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
+    "xml2js": "^0.4.22"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.7.5",
+    "@babel/node": "^7.7.4",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-proposal-private-methods": "^7.7.4",
+    "@babel/preset-env": "^7.7.6",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-jest": "^23.1.1",
+    "eslint-plugin-prettier": "^3.1.1",
+    "jest": "^24.9.0",
+    "nodemon": "^2.0.2",
+    "prettier": "^1.19.1"
+  }
+}

@@ -1,0 +1,194 @@
+Sam  1:10  
+Hey again
+
+Lilla  1:24  
+hi Patrick Give me a sec. I might change Wi Fi. Yeah, okay. It should be fine. Right so, Jose couldn't come because he's doing some activity with the with a couple of the others they are bothering actually. So
+
+But anyways, we had chat and okay what we agreed is we're gonna okay you know in the university can you hear me?
+
+Patrick  3:07  
+Yes. Yeah, no, it's good. Cool.
+
+Lilla  3:12  
+Are you at the university Yes. Nice. Nice. Alright, so we, where we got to now was basically Jose went through a couple of the kind of existing existing solutions other than the Google Speech API because it was not really accurate as you saw. So otter AI has a pretty good solution for this like you just feed in the audio and then or even the video actually, and then gives you a pre accurate transcription with the speaker. Recognise the name, author AI author. Yeah, so let me if you scroll up in the in the chat you should be able to see
+
+Unknown Speaker  4:15  
+check Altera
+
+Unknown Speaker  4:24  
+yeah
+
+Lilla  4:30  
+and it actually, it actually provides a couple of things that we want to do as well. But I guess the purpose of the project here is more to figure these are the other solutions, the tech summary and action items and all this kind of stuff on our own. So we just gonna use the transcription to get the transcription and then take it from there. Let me show you so we're gonna have a look on or Sam, I don't know, I think you're looking at the pretrained tech summary.
+
+Sam  5:22  
+Yeah. So I'm gonna close this quick YouTube clip. It's a I guess it's a company that does pretty much the same thing we want to try to do. I was wondering like, if you have any insights like what kind of biker backhand the liquid they're using? It seems like they're doing everything in real time, like a real time transcription and real time summary. Okay, so this is some meat you're describing down product or what did you just share? That's it. I guess it's a YouTube clip. One of the great challenges is working in real time. What does it do? It creates summaries. Sorry, I miss the context. A little bit. So I think it's plugging into the Zoom meeting in the that's like a live transcript of whatever people are speaking and then gives like a real time summary of what they're talking about. Yes. Okay, and this is probably a company they do not tell you how they do. Deep talk AI Yeah, I'm just curious, like, based on what you see, like what kind of back end Do you think they're using like a day okay, but first, watch the video before I can.
+
+Lilla  7:10  
+Can we watch together because I actually haven't saw it either.
+
+Sam  7:28  
+shows your screen or can you just watch them link by like If not, that's what's together and I can put it on but I cannot share I can share
+
+Patrick  8:06  
+Yes, we can see like as they're talking. On the right hand side. It's a live transcript. And on the I think in the middle, it's like a generated summary.
+
+Okay, this is the point where he knows of transcription, and then they have an action item. Exactly. I think that's what I tried to do that they already have a product for what you want to do.
+
+Yeah, sounds good. So what was your question? If I know how they are doing it?
+
+Sam  8:53  
+What kind of back end they're using to do this. I can imagine they use NLP text summarization for for some, but they do not summarise it right they immediately find this action item. For action item is to check if they have some kind of to they have some kind of textbook or something where they would describe what they do. I'll be secret cokes thank you so as you started checking on how text summarization works. Yet the stuff I came across, it's most likely they do some kind of embedding some latent space, but I think the problem is we don't have a good training data. Because you for text summarization training, you need like a input, the complete whatever document then the output, or label is like a summary of the text, right? Yeah, but maybe we can just use return like this one here. Or this one here.
+
+Lilla  10:54  
+Yeah, that was the idea. No,
+
+Patrick  11:01  
+yeah, I guess we currently just looking at the pre train models in Yeah, that's fine. All right. So we just take a pre trained one and we can use it to summarise text. That was the one thing you had on the list now. Yes. And get a question as to like whether those actionable items the same as summarization or reading this one you mean Yeah. Yeah, I guess, because that's, that's another point. We want to get to, like a list of actionable items. Yeah, if you compare what they have you on the right side, and on the left side, it seems like models is the exact copy of the thing they spoke. It's not a summarization, which is extracting from the existing text, the key points so it seems more like a supervised learning task, right that you kind of have sentences and you then have actions there. And then you the NLP task is to detect what is the action to do Yeah, for this I think we have to research a little bit because either you can train this but what a lot of training data. So I think training would be possible when you delete the text and you need to flag the action items and then you can train a classifier what are the action items, but for this, you need tremendous amount of text. So I think we also need some kind of pre trained thing for this. And then we have to Google a little bit I would say, if there is something like this pre training, because if we have to start flipping this by hand, it's difficult but this is not text summarization, just to make it clear, this is actually tection I would call it right it's not summarising anything. It's just taking a sentence and flagging the action.
+
+Lilla  13:20  
+Yeah, okay. Yeah, okay. Okay. Cool. Yeah, so if we don't find them, you
+
+Patrick  13:32  
+can you can check if if this deep talk AI people if they were on some groups or some medium blog post or anything, you know that you can find some kind of a tech talk from one of their engineers where they kind of open the black box a little bit and say what they're doing. Maybe they have something but maybe not, but we can look. Yeah. Yeah.
+
+Lilla  14:07  
+Okay, yeah. I guess we can do some research. Okay, but it's the same thing. It's the same thing for classifying anything else in the text. Right. So that lines are the things
+
+Patrick  14:25  
+Yeah. Through what what else was still on your list like, what is it only actions also have deadlines? They also have here different categories. You see they have decision no to risk. This means
+
+Lilla  14:43  
+Yeah, I also had a decision. I can show you quickly the mural board that I done match kind of makes it a little bit more kind of easier to look through. So this is what we would use recorded meeting three i transcriptions and text summary and then from I guess, yeah, actually either from the text summary or from the transcript
+
+Patrick  15:19  
+from the once one person is otter i This gives you know this separation by speakers. For free, also you have to pay for
+
+Lilla  15:32  
+it gives you street transcriptions for free. And then you have to pay for this 613 euros so the zoom the zoom, what we talked about, I don't know if you followed up but probably you didn't follow up on site better. I can give you a quick brief so you can only use the transcription with the business account of zoom. And you can only use the business account with minimum minimum 10 users, which is basically 190 euros per month. So that's why we went for something so Altria, Altria kind of gives you the same thing just for certain euros or something. So it can do that. Right so this is what we originated thought that would be easy to get the engagement score, which is something that we would basically contour from the total per active participants. And then could do just a quick summary on like hoovered, the leaders of the conversation like which speakers. At the moment, Otter AI only differentiate speakers as Speaker One speaker two speakers three so I don't know how informative Is that gonna be for for leaders, you know, we probably need some more data around that some statistics how much each person speaks. And then these are the kind of less accurate ones probably, which we could get the action items that lines decisions made.
+
+Patrick  17:35  
+sentiment score, okay. Okay. And how do you then in the end, want to visualise this do you want to build some kind of a dashboard or what should be the final outcome? We know that already? That's a very good question. Okay, you don't know it, but it's not. It's not so bad. I guess we can probably, I mean, the best is like, I feel like some kind of prototype that goes from end to end like a feat of video then generates all the summary or the actual guidance. And some some of those statistics. Okay, in worst case, you could just show the output, some kind of text file or something or some C markup page. Yeah, exactly. So you can see in this scenario, the main machine learning part is the tech summary but
+
+okay, good. Day I you already tested and you are you kind of recording this meeting. Meeting right now or?
+
+Lilla  18:53  
+I am I actually,
+
+Patrick  18:56  
+are you telling?
+
+Lilla  19:02  
+Yeah, I'm recording it. And then we're going to see what kind of transcriptions This is so weird to see what I'm but it's not separated by speaker right. Actually, yeah. Yeah, like the end result is actually different. Like this is quite lengthy meeting, which you can see now. So like one speaker kind of talks for like a lot of time. And it's really accurate actually. Sometimes, punctuation is not great. And some words but it's a lot better than then. Google's actually I don't know what they use. It would be also interesting to find out what author is using.
+
+Patrick  20:02  
+Yeah, after this meeting, you have this this transcript here. Why don't you stop looking into the text summarization at first. Yeah, now just look into Google for some tutorials on how text summarization is done with this transformer model. So maybe there's parts that we don't sell. So there, but there should be I guess there should be plenty of blog posts about it and then we can just try it out. You know, see what's happening. Maybe two text summarization summarization by speaker and see what they generate what it generates. Maybe it's bullshit, maybe not
+
+Lilla  20:47  
+by speaker. Does that make sense? As in like this,
+
+Patrick  20:55  
+not sure they are. Or just in general? Yeah. That's true. Maybe it's not useful. But you can try both. I think, you know, it's just additional.
+
+Lilla  21:13  
+Yeah, yeah. We could try everything.
+
+Patrick  21:19  
+But you can also do is get the summary statistics. Alright, so just yeah, maybe write some load this text into Python. And I'm not sure what is the meta data that you have with it because it would be also interesting to see how long one was talking but just saw that there were time numbers. Yeah, so this isn't seconds or
+
+Lilla  21:48  
+seconds.
+
+Patrick  21:51  
+And then you can just compute very easily Python. How long? Yeah, not once spoke and they still come with something by speaker.
+
+Lilla  22:00  
+Yeah, yeah. Yeah. It can easily do that. And then for these we can Yeah, let's see. What we get out of these. Hopefully today. And then we can have a look if if they're averaging what is already for action items from from a textbook. I probably if there are the it's it doesn't code like that. Like it's probably something like that, like decision. Yeah, I don't know. And if it's we can have a Google on that.
+
+Patrick  22:38  
+Yeah.
+
+Lilla  22:41  
+could also do the sentiment score. By the way, I don't think it's going to be too hard. You just need to use that. I mean, just let us be there quickly and get a score for the
+
+Unknown Speaker  22:57  
+font of the paper pockets. So I think if you could you find something but I think this is civil, not the first persons who want to extract
+
+Lilla  23:06  
+decision text.
+
+Patrick  23:10  
+Which if you go into chat, just click this link. So first thing I just found
+
+Lilla  23:24  
+Uh huh, nice. Yeah. Oh, cool.
+
+Patrick  23:31  
+Okay, use reinforcement learning strange. Nice. But it would be interesting where they have to training data for
+
+any data set we conduct Microsoft Windows help support data set. Okay, yeah, I think if you Google for some minutes, then find something.
+
+Lilla  24:12  
+Tricky Home and Garden cooking to theory Yeah, that's cool, okay. Alright, cool. I don't know if we have more. More questions actually, Sam, do you have more questions?
+
+Sam  24:50  
+No at the moment I think we have stuff to go on for now. Yeah. Okay. Cool. When should we talk next to you just ping me when there's something to discuss or should we do something regular
+
+Lilla  25:12  
+I have this Monday setup recurringly like weekly
+
+Patrick  25:19  
+Okay, okay. Okay, but next Monday I have to skip. I have a seven out there but week after and then so on should be okay Until when are you doing this? This finishes
+
+Lilla  25:29  
+actually it's finishing in three weeks. So the 21st So yeah, so if you maybe if you cannot do next Monday, then we can do one on Friday.
+
+Patrick  25:41  
+Friday, yeah, this would work.
+
+Lilla  25:45  
+That meet me when and I will put it in the calendar because we're gonna be working on the portfolio project on Thursday and Friday the whole day, basically.
+
+Patrick  25:56  
+Could and maybe Friday in the afternoon,
+
+Lilla  25:58  
+okay. Yeah, I think we should be fine for now. Then we can give you back this half an hour.
+
+Patrick  26:19  
+Okay, cool. Yeah. Then if you have questions in between you can also ping me on the chat. And I could also look into things if you get stuck with this text summarization for instance. But you noticed hacking face library because I think they are also that
+
+Lilla  26:43  
+why would you? Yeah, but you know, the birth one. Yeah.
+
+Patrick  26:52  
+So they have all kinds of libraries and just found one link which I put here I will put in the Slack channel after the meeting and typically it looks like this in NLP, you kind of find a way to go then you go to the typing phase and get them pre trained models. For it and that hopefully it works. And here I have a blog post about text summarization. They also use hugging face. So I have dreaded but maybe you go through things like this, maybe also other blocks but we'll just similar to just get a feeling on how this works. And then the next step would be kind of to plug your text into such a model and see what's happening.
+
+Lilla  27:39  
+Yeah, yeah, I came across this. I think Jose posted a meme in that one as well. Okay, yeah. Yeah, it just, yeah, we just clicked together head into
+
+Patrick  27:53  
+it. Okay. Now you're finished with quarter three for DSR or
+
+Lilla  27:58  
+no table tomorrow and Wednesday. They're still courses.
+
+Patrick  28:06  
+what else what else do you have?
+
+Lilla  28:08  
+That's it. That's the that's the last but it's a practical machine learning course. I think. Not sure how it's gonna be different than yours actually.
+
+Patrick  28:20  
+But I also don't know what they teach the other guest at some point they synchronise the contents. I hope that he's maybe okay.
+
+Lilla  28:29  
+Yeah. Yeah. Okay. We are thinking if we if we get stuck. So Friday, what did you say which hour is the best view like 3pm Same time.
+
+Patrick  28:43  
+That's to to this to a credit freeze
+
+Lilla  28:48  
+sound sounds cool. All right. Let's do it. Cool. See see on on. On Friday them yo yo. Ciao. Bye bye.
+
+Transcribed by https://otter.ai
