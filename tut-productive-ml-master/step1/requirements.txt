@@ -1,0 +1,6 @@
+palladium
+scikit-learn
+scipy
+fastapi
+gunicorn
+uvicorn
